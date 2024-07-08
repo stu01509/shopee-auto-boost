@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 var SPC_CDS = os.Getenv("SPC_CDS")
@@ -89,4 +89,19 @@ func boostProduct(productId int) {
 	}
 
 	fmt.Println("INFO Result: ", string(body))
+
+	var responseBody struct {
+		Errcode int    `json:"errcode"`
+		Message string `json:"message"`
+	}
+
+	unmarshalErr := json.Unmarshal(body, &responseBody)
+	if unmarshalErr != nil {
+		fmt.Println("ERROR [UNMARSHAL_ERROR]: ", unmarshalErr)
+		return
+	}
+
+	if responseBody.Errcode != 0 {
+		panic(fmt.Sprintf("ERROR: Non-zero error code received: %d - %s", responseBody.Errcode, responseBody.Message))
+	}
 }
